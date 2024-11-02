@@ -1,0 +1,7 @@
+## Interface: 11404
+## Title: Rigged Rolling
+## Notes: A simple addon to simulate rigged rolls.
+## Author: Broccoli/Pegga
+## Version: 1.1
+
+RiggedRolling.lua
