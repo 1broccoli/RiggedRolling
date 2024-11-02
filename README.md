@@ -6,6 +6,5 @@ Features:
 How It Affects User Experience:
 
     Impress your friends rolling any number you desire!
-![image](https://github.com/user-attachments/assets/896b5cbb-c3c5-4316-b574-faf663d199ad)
 
-
+![rrnew](https://github.com/user-attachments/assets/1fe6e696-b9d7-4ac9-8b7a-95dd908808f3)
