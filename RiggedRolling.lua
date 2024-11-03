@@ -1,6 +1,9 @@
+-- Initialize saved variable table if it doesn't exist
+RiggedRollingSaved = RiggedRollingSaved or { isVisible = true }
+
 -- Create the main frame
 local frame = CreateFrame("Frame", "RiggedRollingFrame", UIParent, "BackdropTemplate")
-frame:SetSize(150, 200) -- (width, height) 
+frame:SetSize(150, 200) -- (width, height)
 frame:SetPoint("CENTER")
 frame:SetMovable(true)
 frame:EnableMouse(true)
@@ -15,22 +18,23 @@ frame:SetBackdrop({
     tile = true, tileSize = 16, edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
-frame:SetBackdropColor(0, 0, 0, 0.8)  -- Background color (black with transparency)
-frame:SetBackdropBorderColor(0, 0, 0)  -- Border color
+frame:SetBackdropColor(0, 0, 0, 0.8)
+frame:SetBackdropBorderColor(0, 0, 0)
 
 -- Title text
 local title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 title:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -5)
 title:SetText("Rig Rolling")
-title:SetTextColor(1, 0, 0)  -- Red Color
-title:SetFont("Fonts\\FRIZQT__.TTF", 20, "OUTLINE")  -- Change to a bolder font style
-title:SetShadowOffset(1, -1)  -- Add shadow for depth
+title:SetTextColor(1, 0, 0)
+title:SetFont("Fonts\\FRIZQT__.TTF", 20, "OUTLINE")
+title:SetShadowOffset(1, -1)
 
--- Create a close button ("X") in the top right corner
+-- Close button
 local closeButton = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 closeButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 5, 5)
 closeButton:SetScript("OnClick", function()
     frame:Hide()
+    RiggedRollingSaved.isVisible = false  -- Save visibility state
 end)
 
 -- Input boxes and labels
@@ -52,9 +56,9 @@ leftInputBox:SetText("1") -- Default value
 local leftLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 leftLabel:SetPoint("BOTTOM", leftInputBox, "TOP", 0, labelOffset)
 leftLabel:SetText("Min")
-leftLabel:SetTextColor(1, 1, 1)  -- White Color
-leftLabel:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")  -- Change to a bolder font style
-leftLabel:SetShadowOffset(1, -1)  -- Add shadow for depth
+leftLabel:SetTextColor(1, 1, 1)
+leftLabel:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+leftLabel:SetShadowOffset(1, -1)
 
 -- Right input box (for the upper bound of the range)
 local rightInputBox = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
@@ -69,15 +73,14 @@ rightInputBox:SetText("100") -- Default value
 local rightLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 rightLabel:SetPoint("BOTTOM", rightInputBox, "TOP", 0, labelOffset)
 rightLabel:SetText("Max")
-rightLabel:SetTextColor(1, 1, 1) -- White Color
-rightLabel:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")  -- Change to a bolder font style
-rightLabel:SetShadowOffset(1, -1)  -- Add shadow for depth
+rightLabel:SetTextColor(1, 1, 1)
+rightLabel:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+rightLabel:SetShadowOffset(1, -1)
 
 -- Dash label between input boxes
 local dashLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 dashLabel:SetPoint("CENTER", leftInputBox, "CENTER", inputBoxWidth + boxSpacing / 2, 0)
-
-dashLabel:SetTextColor(0, 1, 1) 
+dashLabel:SetTextColor(0, 1, 1)
 
 -- Original input box (for the user's entered number)
 local inputBox = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
@@ -91,42 +94,40 @@ inputBox:SetNumeric(true)
 local inputLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 inputLabel:SetPoint("BOTTOM", inputBox, "TOP", 0, labelOffset)
 inputLabel:SetText("Roll")
-inputLabel:SetTextColor(0, 1, 0)  -- Green Roll
-inputLabel:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")  -- Change to a bolder font style
-inputLabel:SetShadowOffset(1, -1)  -- Add shadow for depth
+inputLabel:SetTextColor(0, 1, 0)
+inputLabel:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+inputLabel:SetShadowOffset(1, -1)
 
 -- Create a texture for the dice instead of a button
 local diceTexture = frame:CreateTexture(nil, "OVERLAY")
-diceTexture:SetSize(inputBoxWidth, inputBoxHeight) -- Set the size of the texture
+diceTexture:SetSize(inputBoxWidth, inputBoxHeight)
 diceTexture:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 50, 20)
-diceTexture:SetTexture("Interface\\AddOns\\RiggedRolling\\Textures\\dice.png") -- Set the texture path
+diceTexture:SetTexture("Interface\\AddOns\\RiggedRolling\\Textures\\dice.png")
 
 -- Function to handle texture click
 diceTexture:SetScript("OnMouseDown", function(self)
-    local number = inputBox:GetText() -- Get the number entered in the input box
-    local minRoll = tonumber(leftInputBox:GetText()) -- Get the lower bound of the roll
-    local maxRoll = tonumber(rightInputBox:GetText()) -- Get the upper bound of the roll
-    local playerName = UnitName("player") -- Get the player's name
+    local number = inputBox:GetText()
+    local minRoll = tonumber(leftInputBox:GetText())
+    local maxRoll = tonumber(rightInputBox:GetText())
+    local playerName = UnitName("player")
 
     -- Validate input
     if number ~= "" and minRoll and maxRoll and minRoll < maxRoll then
         local roll = math.random(minRoll, maxRoll)
-        -- Print the message in the chat in yellow text
         local message = string.format("|cffffff00%s rolls %s (%d-%d)|r", playerName, number, minRoll, maxRoll)
-        print(message)  -- Prints to the player's chat window
+        print(message)
     else
-        -- Print an error message in red if input is invalid
         print("|cffff0000Please enter a valid number and range.|r")
     end
 end)
 
--- Optional: Add mouse over effects to simulate button behavior
+-- Mouse over effects for dice texture
 diceTexture:SetScript("OnEnter", function(self)
-    self:SetAlpha(0.8) -- Change opacity on mouse over
+    self:SetAlpha(0.8)
 end)
 
 diceTexture:SetScript("OnLeave", function(self)
-    self:SetAlpha(1) -- Reset opacity when not hovered
+    self:SetAlpha(1)
 end)
 
 -- Slash command to toggle frame visibility
@@ -134,7 +135,23 @@ SLASH_RIGGEDROLLING1 = "/rr"
 SlashCmdList["RIGGEDROLLING"] = function()
     if frame:IsShown() then
         frame:Hide()
+        RiggedRollingSaved.isVisible = false
     else
         frame:Show()
+        RiggedRollingSaved.isVisible = true
     end
 end
+
+-- Event handler to load and save visibility state
+local function OnEvent(self, event)
+    if event == "ADDON_LOADED" then
+        frame:SetShown(RiggedRollingSaved.isVisible)
+    elseif event == "PLAYER_LOGOUT" then
+        RiggedRollingSaved.isVisible = frame:IsShown()
+    end
+end
+
+-- Register events
+frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_LOGOUT")
+frame:SetScript("OnEvent", OnEvent)
